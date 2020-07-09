@@ -26,12 +26,12 @@ if statewiseData:
     series2=series1.loc[[selectedState]]
     "Data for", selectedState
     series2
-    stateDict={"Andhra Pradesh":"AP","Arunachal Pradesh":"AR","Assam":"AS","Bihar":"BR","Chhattisgarh":"CG",
+    stateDict={"Andhra Pradesh":"AP","Arunachal Pradesh":"AR","Assam":"AS","Bihar":"BR","Chhattisgarh":"CT",
                 "Goa":"GA","Gujarat":"GJ","Haryana":"HR","Himachal Pradesh":"HP","Jammu and Kashmir":"JK","Jharkhand":"JH","Karnataka":"KA",
-                "Kerala":"KL","Madhya Pradesh":"MP","Maharashtra":"MH","Manipur":"MN","Meghalaya":"ML","Mizoram":"MZ",
-                "Nagaland":"NL","Orissa":"OR","Punjab":"PB","Rajasthan":"RJ","Sikkim":"SK","Tamil Nadu":"TN","Tripura":"TR",
-                "Uttarakhand":"UK","Uttar Pradesh":"UP","West Bengal":"WB","Tamil Nadu":"TN","Tripura":"TR","Andaman and Nicobar Islands":"AN",
-                "Chandigarh":"CH","Dadra and Nagar Haveli":"DH","Daman and Diu":"DD","Delhi":"DL","Lakshadweep":"LD","Pondicherry":"PY"}
+                "Kerala":"KL","Ladakh":"LA","Madhya Pradesh":"MP","Maharashtra":"MH","Manipur":"MN","Meghalaya":"ML","Mizoram":"MZ",
+                "Nagaland":"NL","Odisha":"OR","Punjab":"PB","Rajasthan":"RJ","Sikkim":"SK","Tamil Nadu":"TN","Tripura":"TR",
+                "Uttarakhand":"UT","Uttar Pradesh":"UP","West Bengal":"WB","Tamil Nadu":"TN","Tripura":"TR","Andaman and Nicobar Islands":"AN",
+                "Chandigarh":"CH","Dadra and Nagar Haveli and Daman and Diu":"DN","Delhi":"DL","Lakshadweep":"LD","Puducherry":"PY","State Unassigned":"UN"}
     series_statewise_daily = pd.read_csv(DATA_URL_statewise_timeseries, header=0, index_col=0)
     stateForTimeSeries=stateDict[selectedState]
     timeSeriesDataforLast30DaysConfirmed = series_statewise_daily[stateForTimeSeries][-90::3]
