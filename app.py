@@ -17,22 +17,25 @@ statewiseData=st.sidebar.checkbox(
         "Statewise Data "
 )
 if statewiseData:
-    st.markdown("This is a dashboard used to visualize Statewise Covid-19 situation in India ")
+    st.markdown("Statewise Covid-19 cases in India ")
     series1=pd.read_csv(DATA_URL_statewise, header=0, index_col=0, parse_dates=True, squeeze=True)
     series1=series1[["Confirmed","Recovered","Deaths","Active"]]
     st.subheader("Statewise Data")
+    selectedState = st.selectbox(
+    "Select a state :",
+        sorted(series1.index))
+    series2=series1.loc[[selectedState]]
+    "Data for", selectedState
+    series2
+
+    st.subheader("Data for all States and Union Territories")
     fig = go.Figure(data=[go.Table(header=dict(values=["States","Confirmed","Recovered","Deaths","Active"]),
                  cells=dict(values=[series1.index,series1.Confirmed,series1.Recovered,series1.Deaths,series1.Active],
                fill_color='lavender',align='center'))
                      ])
     fig.update_layout(width=800, height=700)
     st.write(fig)
-
-    selectedState = st.selectbox(
-    "Select a state :",
-        sorted(series1.index))
 else:
-    st.markdown("This is a dashboard used to visualize Covid-19 situation in India ")
     series = pd.read_csv(DATA_URL, header=0, index_col=0, parse_dates=True, squeeze=True)
     daily_confirmed = series["Daily Confirmed"]
     daily_recovered = series["Daily Recovered"]
@@ -47,18 +50,18 @@ else:
     option1=st.checkbox(
         "Select starting date")
     if option1:
-        dateStart = st.sidebar.date_input('start date', datetime.date(2020,5,30))
+        dateStart = st.date_input('start date', datetime.date(2020,5,30))
     else:
         dateStart= datetime.date(2020,5,30)
-        'Showing graph for : ', option
-        option, "Cases in India since ",dateStart
-        startDate1=datetime.date(2020,1,30)
-        delta = dateStart-startDate1
-        linedata =series[option][delta.days:]
-        fig = px.line(linedata)
-        fig.update_xaxes(title_text='Date')
-        fig.update_layout(hovermode="x")
-        fig.update_yaxes(title_text='No. of Cases')
+    'Showing graph for : ', option
+    option, "Cases in India since ",dateStart
+    startDate1=datetime.date(2020,1,30)
+    delta = dateStart-startDate1
+    linedata =series[option][delta.days:]
+    fig = px.line(linedata)
+    fig.update_xaxes(title_text='Date')
+    fig.update_layout(hovermode="x")
+    fig.update_yaxes(title_text='No. of Cases')
     st.write(fig)
 
     total_active_today = series["Total Confirmed"][-1] - series["Total Recovered"][-1] - series["Total Deceased"][-1]
