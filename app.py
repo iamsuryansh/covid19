@@ -1,21 +1,24 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import pydeck as pdk
 import plotly.express as px
 from matplotlib import pyplot
 import datetime
 import plotly.graph_objects as go
 #server = app.server
-DATA_URL = ("https://api.covid19india.org/csv/latest/case_time_series.csv")
-DATA_URL_statewise_timeseries = ("https://api.covid19india.org/csv/latest/state_wise_daily.csv")
-DATA_URL_statewise = ("https://api.covid19india.org/csv/latest/state_wise.csv")
-
+@st.cache
+def get_data():
+    DATA_URL = ("https://api.covid19india.org/csv/latest/case_time_series.csv")
+    DATA_URL_statewise_timeseries = ("https://api.covid19india.org/csv/latest/state_wise_daily.csv")
+    DATA_URL_statewise = ("https://api.covid19india.org/csv/latest/state_wise.csv")
+    return DATA_URL,DATA_URL_statewise,DATA_URL_statewise_timeseries
+DATA_URL,DATA_URL_statewise,DATA_URL_statewise_timeseries=get_data()
 st.title("Covid-19 in India")
+options=["National Data","Statewise Data"]
+optionSelected=st.sidebar.radio("",options)
 
-statewiseData=st.sidebar.checkbox(
-        "Statewise Data "
-)
-if statewiseData:
+if optionSelected=="Statewise Data":
     st.markdown("Statewise Covid-19 cases in India ")
     series1=pd.read_csv(DATA_URL_statewise, header=0, index_col=0, parse_dates=True, squeeze=True)
     series1=series1[["Confirmed","Recovered","Deaths","Active"]]
@@ -24,21 +27,24 @@ if statewiseData:
     "Select a state :",
         sorted(series1.index))
     series2=series1.loc[[selectedState]]
-    "Data for", selectedState
-    series2
-    stateDict={"Andhra Pradesh":"AP","Arunachal Pradesh":"AR","Assam":"AS","Bihar":"BR","Chhattisgarh":"CT",
+    st.info("Total Confirmed Cases : {s}".format(s=int(series2["Confirmed"])))
+    st.success("Recovered Cases : {s}".format(s=int(series2["Recovered"])))
+    st.warning("Active Cases : {s}".format(s=int(series2["Active"])))
+    st.error("Deaths : {s}".format(s=int(series2["Deaths"])))
+
+    stateDict={"Andhra Pradesh":"AP","Arunachal Pradesh":"AR","Assam":"AS","Bihar":"BR","Chhattisgarh":"CG",
                 "Goa":"GA","Gujarat":"GJ","Haryana":"HR","Himachal Pradesh":"HP","Jammu and Kashmir":"JK","Jharkhand":"JH","Karnataka":"KA",
-                "Kerala":"KL","Ladakh":"LA","Madhya Pradesh":"MP","Maharashtra":"MH","Manipur":"MN","Meghalaya":"ML","Mizoram":"MZ",
-                "Nagaland":"NL","Odisha":"OR","Punjab":"PB","Rajasthan":"RJ","Sikkim":"SK","Tamil Nadu":"TN","Tripura":"TR",
-                "Uttarakhand":"UT","Uttar Pradesh":"UP","West Bengal":"WB","Tamil Nadu":"TN","Tripura":"TR","Andaman and Nicobar Islands":"AN",
-                "Chandigarh":"CH","Dadra and Nagar Haveli and Daman and Diu":"DN","Delhi":"DL","Lakshadweep":"LD","Puducherry":"PY","State Unassigned":"UN"}
+                "Kerala":"KL","Madhya Pradesh":"MP","Maharashtra":"MH","Manipur":"MN","Meghalaya":"ML","Mizoram":"MZ",
+                "Nagaland":"NL","Orissa":"OR","Punjab":"PB","Rajasthan":"RJ","Sikkim":"SK","Tamil Nadu":"TN","Tripura":"TR",
+                "Uttarakhand":"UK","Uttar Pradesh":"UP","West Bengal":"WB","Tamil Nadu":"TN","Tripura":"TR","Andaman and Nicobar Islands":"AN",
+                "Chandigarh":"CH","Dadra and Nagar Haveli":"DH","Daman and Diu":"DD","Delhi":"DL","Lakshadweep":"LD","Pondicherry":"PY"}
     series_statewise_daily = pd.read_csv(DATA_URL_statewise_timeseries, header=0, index_col=0)
     stateForTimeSeries=stateDict[selectedState]
     timeSeriesDataforLast30DaysConfirmed = series_statewise_daily[stateForTimeSeries][-90::3]
     timeSeriesDataforLast30DaysRecovered = series_statewise_daily[stateForTimeSeries][-89::3]
     timeSeriesDataforLast30DaysDeceased = series_statewise_daily[stateForTimeSeries][-88::3]
     listOfVariables=["Daily Confirmed","Daily Recovered","Daily Deceased"]
-    option = st.selectbox(
+    option = st.radio(
         'Select a category:',
         listOfVariables)
     if option=="Daily Confirmed":
@@ -50,14 +56,17 @@ if statewiseData:
     figD.update_yaxes(title_text='No. of Cases')
     figD.update_layout(legend_title_text = "State")
     st.write(figD)
+
     st.subheader("Data for all States and Union Territories")
-    fig = go.Figure(data=[go.Table(header=dict(values=["States","Confirmed","Recovered","Deaths","Active"]),
-                 cells=dict(values=[series1.index,series1.Confirmed,series1.Recovered,series1.Deaths,series1.Active],
-               fill_color='lavender',align='center'))
-                     ])
-    fig.update_layout(width=800, height=700)
-    st.write(fig)
-else:
+    fullData=st.checkbox("Show Data ")
+    if fullData:
+        fig = go.Figure(data=[go.Table(header=dict(values=["States","Confirmed","Recovered","Deaths","Active"]),
+                    cells=dict(values=[series1.index,series1.Confirmed,series1.Recovered,series1.Deaths,series1.Active],
+                    fill_color='lavender',align='center'))
+                        ])
+        fig.update_layout(width=800, height=700)
+        st.write(fig)
+elif optionSelected=="National Data":
     series = pd.read_csv(DATA_URL, header=0, index_col=0, parse_dates=True, squeeze=True)
     daily_confirmed = series["Daily Confirmed"]
     daily_recovered = series["Daily Recovered"]
@@ -71,7 +80,8 @@ else:
         listOfVariables)
     option1=st.checkbox(
         "Select starting date")
-    if option1:
+
+    if option1==True:
         dateStart = st.date_input('start date', datetime.date(2020,5,30))
     else:
         dateStart= datetime.date(2020,5,30)
@@ -95,3 +105,5 @@ else:
                 title='Distribution of total cases in India')
 
     st.write(fig1)
+else:
+    pass
