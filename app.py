@@ -1,13 +1,10 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import pydeck as pdk
 import plotly.express as px
-from matplotlib import pyplot
 import datetime
 import plotly.graph_objects as go
 
-@st.cache
+@st.cache_data
 def get_data():
     DATA_URL = ("https://api.covid19india.org/csv/latest/case_time_series.csv")
     DATA_URL_statewise_timeseries = ("https://api.covid19india.org/csv/latest/state_wise_daily.csv")
@@ -20,7 +17,7 @@ optionSelected=st.sidebar.radio("",options)
 
 if optionSelected=="Statewise Data":
     st.markdown("Statewise Covid-19 cases in India ")
-    series1=pd.read_csv(DATA_URL_statewise, header=0, index_col=0, parse_dates=True, squeeze=True)
+    series1=pd.read_csv(DATA_URL_statewise, header=0, index_col=0, parse_dates=True)
     series1=series1[["Confirmed","Recovered","Deaths","Active"]]
     st.subheader("Statewise Data")
     stateDict={"Andhra Pradesh":"AP","Arunachal Pradesh":"AR","Assam":"AS","Bihar":"BR","Chhattisgarh":"CG",
@@ -70,13 +67,14 @@ if optionSelected=="Statewise Data":
     pie1 = [total_active_today,series2["Recovered"],series2["Deaths"]]
     name1=["Total Active Cases","Total Recovered Cases","Total Deaths"]
     colors1=["#f54242","#5df542","#4278f5"]
-    fig2 = px.pie(pie1, values=pie1,names=name1,
-                title='Distribution of total cases in {s}'.format(s = selectedState),
-                color = name1,
-                color_discrete_map={'Total Active Cases':"#f54242",
-                                 "Total Recovered Cases": "#4278f5",
-                                 "Total Deaths" : "#5df542"})
-    st.write(fig2)
+    print("Pie = ", pie1)
+    # fig2 = px.pie(pie1, values=pie1, names=name1,
+    #               title='Distribution of total cases in {s}'.format(s=selectedState),
+    #               color=name1,
+    #               color_discrete_map={'Total Active Cases': "#f54242",
+    #                                  "Total Recovered Cases": "#4278f5",
+    #                                  "Total Deaths": "#5df542"})
+    # st.plotly_chart(fig2)
     st.subheader("Data for all States and Union Territories")
     fullData=st.checkbox("Show Data ")
     if fullData:
@@ -86,7 +84,7 @@ if optionSelected=="Statewise Data":
         st.write(fig)
 elif optionSelected=="National Data":
 
-    series = pd.read_csv(DATA_URL, header=0, index_col=0, parse_dates=True, squeeze=True)
+    series = pd.read_csv(DATA_URL, header=0, index_col=0, parse_dates=True)
     st.info("Total Cases : "  + str(series["Total Confirmed"][-1]))
     st.success("Recovered Cases : " + str(series["Total Recovered"][-1]))
     st.error("Total Deaths : " + str(series["Total Deceased"][-1]))
@@ -138,3 +136,4 @@ else:
 for i in range(18):
     st.sidebar.markdown(" ")
 st.sidebar.subheader("Suryansh Jain")
+st.sidebar.write("July, 2020")
